@@ -173,31 +173,22 @@ class FileController extends Controller
     }
 
 
-    public function url(Request $r, $idOrSlug)
+    public function url($idOrSlug)
     {
-        // Find by ID or slug
-        $file = File::where('id', $idOrSlug)
+        $file = \App\Models\File::where('id', $idOrSlug)
             ->orWhere('slug', $idOrSlug)
             ->firstOrFail();
 
-        // (Optional) log access as a "download/open"
-        $file->recordDownload($r->ip(), $r->header('User-Agent'));
+        $absolute = storage_path('app/public/' . $file->storage_path);
+        abort_unless(is_file($absolute), 404);
 
-        // Build a navigable URL
-        // Local "public" disk (requires: php artisan storage:link)
-        $url = Storage::disk('public')->url($file->storage_path);
-
-        // If you use S3 (private), swap with a signed URL:
-        // $url = Storage::disk('s3')->temporaryUrl(
-        //     $file->storage_path,
-        //     now()->addMinutes(5),
-        //     ['ResponseContentDisposition' => 'inline; filename="'.$file->original_name.'"']
-        // );
-
-        return response()->api([
-            'url'    => $url,
-        ], 200);
+        return response()->download(
+            $absolute,
+            $file->original_name ?? basename($absolute),
+            ['Content-Type' => $file->mime_type ?: 'application/octet-stream']
+        );
     }
+
 
 
     public function stats()
