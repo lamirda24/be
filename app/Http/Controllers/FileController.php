@@ -173,22 +173,32 @@ class FileController extends Controller
     }
 
 
-    public function url($idOrSlug)
+    public function download($idOrSlug)
     {
         $file = \App\Models\File::where('id', $idOrSlug)
             ->orWhere('slug', $idOrSlug)
             ->firstOrFail();
 
-        $absolute = storage_path('app/public/' . $file->storage_path);
-        abort_unless(is_file($absolute), 404);
+        $disk = Storage::disk('public');
+        $path = ltrim($file->storage_path, '/'); // contoh: files/xxx.xlsx
 
-        return response()->download(
-            $absolute,
-            $file->original_name ?? basename($absolute),
-            ['Content-Type' => $file->mime_type ?: 'application/octet-stream']
-        );
+        if (!$disk->exists($path)) {
+            abort(404, 'File not found');
+        }
+
+        // Header aman (fallback kalau mime kosong)
+        $headers = [
+            'Content-Type' => $file->mime_type ?: 'application/octet-stream',
+            // kalau mau inline buka di browser, ganti `attachment` -> `inline`
+            'Content-Disposition' => 'attachment; filename="' . ($file->original_name ?: basename($path)) . '"',
+        ];
+
+        // catat download
+        $file->recordDownload(request()->ip(), request()->header('User-Agent'));
+
+        // Stream via Flysystem (tidak load ke memory penuh)
+        return $disk->download($path, $file->original_name ?: basename($path), $headers);
     }
-
 
 
     public function stats()

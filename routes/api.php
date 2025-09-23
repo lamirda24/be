@@ -32,7 +32,7 @@ Route::prefix('auth')->group(function () {
 Route::get('files', [FileController::class, 'index']);
 Route::get('categories', [CategoryController::class, 'index']);
 // Route::get('files/{slug}', [FileController::class, 'show']); //toggle visibility
-Route::get('files/{slug}/download', [FileController::class, 'url']); // logs + increments
+Route::post('files/{slug}/download', [FileController::class, 'url']); // logs + increments
 
 // Admin/protected writes
 Route::middleware('auth:sanctum')->group(function () {
