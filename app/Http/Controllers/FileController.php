@@ -7,6 +7,7 @@ use App\Models\File;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class FileController extends Controller
 {
@@ -173,31 +174,41 @@ class FileController extends Controller
     }
 
 
-    public function url($idOrSlug)
+    public function url($idOrSlug): BinaryFileResponse
     {
         $file = \App\Models\File::where('id', $idOrSlug)
             ->orWhere('slug', $idOrSlug)
             ->firstOrFail();
 
-        $disk = Storage::disk('public');
-        $path = ltrim($file->storage_path, '/'); // contoh: files/xxx.xlsx
+        // path relatif yang kamu simpan, contoh: "files/abc.xlsx"
+        $relative = ltrim($file->storage_path, '/');
 
-        if (!$disk->exists($path)) {
-            abort(404, 'File not found');
+        // pastikan file ada di disk public
+        if (!Storage::disk('public')->exists($relative)) {
+            abort(404, 'File not found on disk');
         }
 
-        // Header aman (fallback kalau mime kosong)
-        $headers = [
-            'Content-Type' => $file->mime_type ?: 'application/octet-stream',
-            // kalau mau inline buka di browser, ganti `attachment` -> `inline`
-            'Content-Disposition' => 'attachment; filename="' . ($file->original_name ?: basename($path)) . '"',
-        ];
+        // absolute path fisik
+        $absolute = storage_path('app/public/' . $relative);
 
-        // catat download
-        $file->recordDownload(request()->ip(), request()->header('User-Agent'));
+        // log download (kalau method ini ada)
+        if (method_exists($file, 'recordDownload')) {
+            $file->recordDownload(request()->ip(), request()->header('User-Agent'));
+        }
 
-        // Stream via Flysystem (tidak load ke memory penuh)
-        return $disk->download($path, $file->original_name ?: basename($path), $headers);
+        // header yang aman
+        $downloadName = $file->original_name ?: basename($absolute);
+        $mime        = $file->mime_type ?: mime_content_type($absolute) ?: 'application/octet-stream';
+
+        // pakai BinaryFileResponse (stabil, minim kejutan)
+        return response()->download(
+            $absolute,
+            $downloadName,
+            [
+                'Content-Type'        => $mime,
+                'Content-Disposition' => 'attachment; filename="' . addslashes($downloadName) . '"',
+            ]
+        );
     }
 
 
