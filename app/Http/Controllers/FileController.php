@@ -40,7 +40,13 @@ class FileController extends Controller
         $limit = (int) $r->query('limit', 20);
         $limit = max(1, min($limit, 100)); // clamp 1..100
 
-        return response()->api($query->latest()->paginate($limit)->withQueryString(), 200);
+        return response()->api(
+            $query->orderBy('category_id', 'asc')
+                ->orderByDesc('created_at')   // jika tak ada created_at, pakai ->orderByDesc('id')
+                ->paginate($limit)
+                ->withQueryString(),
+            200
+        );
     }
 
 
