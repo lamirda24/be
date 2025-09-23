@@ -173,7 +173,7 @@ class FileController extends Controller
     }
 
 
-    public function download($idOrSlug)
+    public function url($idOrSlug)
     {
         $file = \App\Models\File::where('id', $idOrSlug)
             ->orWhere('slug', $idOrSlug)
