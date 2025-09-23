@@ -10,6 +10,7 @@ return [
     'paths' => [
         'api/*',           // Your main API endpoints
         'sanctum/csrf-cookie', // If using Laravel Sanctum
+        'storage/*'
     ],
 
     'allowed_methods' => ['*'], // Or specify: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
@@ -40,13 +41,7 @@ return [
     ],
 
     'allowed_headers' => [
-        'Accept',
-        'Authorization',        // Essential for Bearer tokens
-        'Content-Type',
-        'X-Requested-With',
-        'X-CSRF-TOKEN',
-        'Origin',              // Often required for CORS
-        'Cache-Control',       // Sometimes needed
+        "*"
     ],
 
     'exposed_headers' => [
