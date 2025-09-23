@@ -16,8 +16,8 @@ return [
 
     'allowed_origins' => [
         // Development - Vite default port
-        'http://localhost:5173',
-        'http://127.0.0.1:5173',
+        // 'http://localhost:5173',
+        // 'http://127.0.0.1:5173',
 
         // Other common development ports (if needed)
         // 'http://localhost:3000',    // React/Next.js
@@ -25,12 +25,13 @@ return [
         // 'http://localhost:4200',    // Angular
 
         // Production - replace with your actual domains
+        "https://kebijakan-spbe.vercel.app",
         // 'https://yourdomain.com',
         // 'https://www.yourdomain.com',
         // 'https://app.yourdomain.com',
 
         // For development only - remove in production
-        '*'
+
     ],
 
     'allowed_origins_patterns' => [
