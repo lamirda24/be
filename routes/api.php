@@ -8,6 +8,8 @@ use App\Http\Controllers\FileController;
 use App\Http\Controllers\DownloadLogController;
 
 use App\Models\File;
+// routes/api.php
+Route::get('/health', fn() => ['status' => 'ok']);
 
 
 Route::bind('file', function ($value) {
