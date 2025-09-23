@@ -34,7 +34,7 @@ Route::get('files/{slug}/download', [FileController::class, 'url']); // logs + i
 
 // Admin/protected writes
 Route::middleware('auth:sanctum')->group(function () {
-  Route::apiResource('categories', CategoryController::class)->except(['show']);
+  // Route::apiResource('categories', CategoryController::class)->except(['show']);
   Route::apiResource('tags', TagController::class)->only(['index', 'store', 'destroy']);
   Route::apiResource('files', FileController::class)->only(['store', 'update', 'destroy']);
   // extra actions for soft deletes:

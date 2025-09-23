@@ -19,7 +19,9 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->append(CustomCors::class);
         // If you prefer only for API group instead:
         // $middleware->appendToGroup('api', HandleCors::class);
-    })
+    })->withCommands([
+        \App\Console\Commands\ImportKemendikdasmenFiles::class, // <= DAFTARKAN DI SINI
+    ])
     ->withExceptions(function ($exceptions) {
         //
     })->create();
