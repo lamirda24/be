@@ -6,6 +6,8 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\TagController;
 use App\Http\Controllers\FileController;
 use App\Http\Controllers\DownloadLogController;
+use App\Http\Controllers\FileSignedController;
+
 
 use App\Models\File;
 // routes/api.php
@@ -17,6 +19,20 @@ Route::bind('file', function ($value) {
     ->orWhere('slug', $value)
     ->firstOrFail();
 });
+
+// routes/api.php
+
+
+
+// 1) FE asks BE for a temporary signed URL (JSON back)
+Route::post('/files/{slug}/signed-url', [FileSignedController::class, 'issue'])
+  ->name('files.issue');
+
+// 2) The actual signed download endpoint (must be GET and signed)
+Route::get('/files/signed-download', [FileSignedController::class, 'download'])
+  ->middleware('signed')                     // validates signature & expiry
+  ->name('files.signed-download');
+
 
 
 Route::prefix('auth')->group(function () {

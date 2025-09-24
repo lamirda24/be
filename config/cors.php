@@ -32,6 +32,7 @@ return [
         // 'https://app.yourdomain.com',
 
         // For development only - remove in production
+        "*"
 
     ],
 
@@ -49,7 +50,10 @@ return [
         'Authorization',       // If you return auth tokens in responses
         // 'X-Total-Count',
         // 'X-Page-Count',
+        'Content-Disposition'
     ],
+
+
 
     'max_age' => 86400, // Cache preflight for 24 hours (reduces OPTIONS requests)
 
